@@ -1,4 +1,4 @@
-ödefVar --name fileSystem --type FileSystem
+¸defVar --name fileSystem --type FileSystem
 defVar --name invoicePath --type List --innertype String
 defVar --name isExists --type Boolean
 defVar --name theInvoiceFile --type String
@@ -6,7 +6,8 @@ defVar --name opened --type Boolean
 defVar --name pdf1 --type Pdf
 defVar --name compName --type String
 defVar --name fileExtension --type String
-ifFolder --path "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2" --fileSystem ${fileSystem} --comment "replace with your own directory" isExists=value
+defVar --name invoicesDir --type String --value "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2"
+ifFolder --path "${invoicesDir}" --fileSystem ${fileSystem} --comment "replace with your own directory" isExists=value
 if --left "${isExists}" --operator "Is_True"
 	getFiles --path "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2" --orderbylastmodification  --fileSystem ${fileSystem} invoicePath=value
 	foreach --collection "${invoicePath}" --variable "${theInvoiceFile}" --comment "loop the files inside the directory"
