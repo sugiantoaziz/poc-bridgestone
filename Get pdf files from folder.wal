@@ -1,0 +1,31 @@
+ÊdefVar --name fileSystem --type FileSystem
+defVar --name invoicePath --type List --innertype String
+defVar --name isExists --type Boolean
+defVar --name theInvoiceFile --type String
+defVar --name opened --type Boolean
+defVar --name pdf1 --type Pdf
+defVar --name compName --type String
+defVar --name fileExtension --type String
+ifFolder --path "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2" --fileSystem ${fileSystem} isExists=value
+if --left "${isExists}" --operator "Is_True"
+	getFiles --path "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2" --orderbylastmodification  --fileSystem ${fileSystem} invoicePath=value
+	foreach --collection "${invoicePath}" --variable "${theInvoiceFile}" --comment "loop the files inside the directory"
+		getFileInfo --path "${theInvoiceFile}" fileExtension=extension
+		if --left "${fileExtension}" --operator "Equal_To" --right ".pdf"
+			pdfOpen --file "${theInvoiceFile}" opened=success pdf1=value
+			if --left "${opened}" --operator "Is_True"
+				pdfRegionText --language "en-US" --region "72,41,114,16" --useocr  --ocrprovider "Abbyy" --page 1 --dpix 110 --dpiy 110 --file ${pdf1} compName=value
+				goSub --label webAppFormFilling
+			else
+				messageBox --title "Failed to Open" --text "The pdf file failed to open" --icon "Warning" --buttons "OK" --defaultbutton "FirstButton"
+			endIf --comment "end if file pdf opened"
+			pdfClose --file ${pdf1}
+		endIf --comment "end if pdf extension check"
+	endFor
+else
+	failTest --message "Directory is not found"
+	messageBox --title "Directory Not Found" --text "Directory not found. Please create directory first or contact the administrator" --icon "Information" --buttons "OK" --defaultbutton "FirstButton"
+endIf --comment "end if directory exists"
+beginSub --name webAppFormFilling
+logMessage --message "Got data\r\n--------------------------------------------------------------\r\nCompany name        : ${compName}" --type "Info"
+endSub*21.0.6.0
