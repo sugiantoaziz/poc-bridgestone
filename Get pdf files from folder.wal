@@ -1,4 +1,4 @@
-¸defVar --name fileSystem --type FileSystem
+™defVar --name fileSystem --type FileSystem
 defVar --name invoicePath --type List --innertype String
 defVar --name isExists --type Boolean
 defVar --name theInvoiceFile --type String
@@ -7,6 +7,10 @@ defVar --name pdf1 --type Pdf
 defVar --name compName --type String
 defVar --name fileExtension --type String
 defVar --name invoicesDir --type String --value "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2"
+defVar --name invoiceNo --type String
+defVar --name invoiceDate --type String
+defVar --name subtotalAmount --type String
+defVar --name totalAmount --type String
 ifFolder --path "${invoicesDir}" --fileSystem ${fileSystem} --comment "replace with your own directory" isExists=value
 if --left "${isExists}" --operator "Is_True"
 	getFiles --path "C:\\Users\\User\\Documents\\metrasys\\IBM RPA\\enablement\\Exercise 2" --orderbylastmodification  --fileSystem ${fileSystem} invoicePath=value
@@ -15,7 +19,7 @@ if --left "${isExists}" --operator "Is_True"
 		if --left "${fileExtension}" --operator "Equal_To" --right ".pdf"
 			pdfOpen --file "${theInvoiceFile}" opened=success pdf1=value
 			if --left "${opened}" --operator "Is_True"
-				pdfRegionText --language "en-US" --region "72,41,114,16" --useocr  --ocrprovider "Abbyy" --page 1 --dpix 110 --dpiy 110 --file ${pdf1} compName=value
+				goSub --label getPdfFields
 				goSub --label webAppFormFilling
 			else
 				messageBox --title "Failed to Open" --text "The pdf file failed to open" --icon "Warning" --buttons "OK" --defaultbutton "FirstButton"
@@ -28,5 +32,12 @@ else
 	messageBox --title "Directory Not Found" --text "Directory not found. Please create directory first or contact the administrator" --icon "Information" --buttons "OK" --defaultbutton "FirstButton"
 endIf --comment "end if directory exists"
 beginSub --name webAppFormFilling
-logMessage --message "Got data\r\n--------------------------------------------------------------\r\nCompany name        : ${compName}" --type "Info"
+logMessage --message "Got data\r\n--------------------------------------------------------------\r\nCompany name        : ${compName}\r\nInvoice Number        : ${invoiceNo}\r\nInvoice Date              : ${invoiceDate}\r\nSubtotal Amount      : ${subtotalAmount}\r\nTotal Amount             : ${totalAmount}" --type "Info"
+endSub
+beginSub --name getPdfFields
+pdfRegionText --language "en-US" --region "107,62,172,27" --useocr  --ocrprovider "Abbyy" --page 1 --dpix 110 --dpiy 110 --file ${pdf1} compName=value
+pdfRegionText --language "en-US" --region "701,886,95,19" --autodetect  --page 1 --dpix 110 --dpiy 110 --file ${pdf1} subtotalAmount=value
+pdfRegionText --language "en-US" --region "691,970,104,19" --autodetect  --page 1 --dpix 110 --dpiy 110 --file ${pdf1} totalAmount=value
+pdfRegionText --language "en-US" --region "739,146,55,18" --useocr  --ocrprovider "Abbyy" --page 1 --dpix 110 --dpiy 110 --file ${pdf1} invoiceNo=value
+pdfRegionText --language "en-US" --region "706,166,91,21" --useocr  --ocrprovider "Abbyy" --page 1 --dpix 110 --dpiy 110 --file ${pdf1} invoiceDate=value
 endSub*21.0.6.0
